@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --card: #141720;
+      --border: #1e2330;
+      --accent: #4ade80;
+      --accent2: #22d3ee;
+      --text: #e2e8f0;
+      --muted: #64748b;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text);
+      min-height: 100vh;
+      background-image: radial-gradient(ellipse at 20% 50%, #0f1f1a 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 20%, #0a1520 0%, transparent 50%);
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-brand { font-size: 16px; font-weight: 700; }
+    .nav-brand em { color: var(--accent2); font-style: normal; }
+
+    .logout-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .main {
+      max-width: 700px;
+      margin: 60px auto;
+      padding: 0 20px;
+    }
+
+    .greeting {
+      margin-bottom: 36px;
+    }
+
+    .greeting small {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .greeting h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+
+    .card h3 {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .field {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .field:last-child { border-bottom: none; }
+    .field-label { color: var(--muted); }
+    .field-value { color: var(--text); }
+
+    .token-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 11px;
+      color: var(--accent2);
+      word-break: break-all;
+      line-height: 1.6;
+      margin-top: 4px;
+    }
+
+    .api-section h3 {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .api-btn {
+      background: none;
+      border: 1px solid var(--accent2);
+      color: var(--accent2);
+      font-family: inherit;
+      font-size: 12px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: all 0.2s;
+    }
+
+    .api-btn:hover { background: var(--accent2); color: var(--bg); }
+
+    .api-result {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--accent);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      display: none;
+      white-space: pre;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand">NODE<em>AUTH</em></div>
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</nav>
+
+<div class="main">
+  <div class="greeting">
+    <small>// authenticated</small>
+    <h2>Hello, <span id="userName">...</span> 👋</h2>
+  </div>
+
+  <div class="card">
+    <h3>// user profile</h3>
+    <div class="field">
+      <span class="field-label">ID</span>
+      <span class="field-value" id="userId">-</span>
+    </div>
+    <div class="field">
+      <span class="field-label">Name</span>
+      <span class="field-value" id="profileName">-</span>
+    </div>
+    <div class="field">
+      <span class="field-label">Email</span>
+      <span class="field-value" id="profileEmail">-</span>
+    </div>
+    <div class="field">
+      <span class="field-label">Joined</span>
+      <span class="field-value" id="profileDate">-</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>// jwt token (stored in localStorage)</h3>
+    <div class="token-box" id="tokenDisplay">Loading...</div>
+  </div>
+
+  <div class="card api-section">
+    <h3>// test protected API call</h3>
+    <button class="api-btn" onclick="callDashboardAPI()">GET /api/dashboard</button>
+    <pre class="api-result" id="apiResult"></pre>
+  </div>
+</div>
+
+<script>
+  const API = 'http://localhost:3001/api';
+
+  function init() {
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+
+    if (!token || !user) { window.location.href = 'index.html'; return; }
+
+    document.getElementById('userName').textContent = user.name;
+    document.getElementById('userId').textContent = '#' + user.id;
+    document.getElementById('profileName').textContent = user.name;
+    document.getElementById('profileEmail').textContent = user.email;
+    document.getElementById('tokenDisplay').textContent = token;
+
+    // Fetch full profile from API
+    fetch(`${API}/dashboard`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.user?.created_at) {
+        document.getElementById('profileDate').textContent =
+          new Date(data.user.created_at).toLocaleDateString('en-IN', { dateStyle: 'medium' });
+      }
+    });
+  }
+
+  async function callDashboardAPI() {
+    const token = localStorage.getItem('token');
+    const result = document.getElementById('apiResult');
+    result.style.display = 'block';
+    result.textContent = 'Calling API...';
+
+    const res = await fetch(`${API}/dashboard`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    result.textContent = JSON.stringify(data, null, 2);
+  }
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = 'index.html';
+  }
+
+  init();
+</script>
+</body>
+</html>
